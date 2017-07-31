@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/mongo/user');
+const auth = require('../middlewares/auth_user');
 
 /* GET user listing. */
 router.route('/')
@@ -56,7 +57,7 @@ router.route('/:id')
         next(e);
       });
   })
-  .patch((req, res, next) => {
+  .patch(auth(), (req, res, next) => {
     (async () => {
       let update = {};
       if (req.body.name) {
@@ -65,7 +66,7 @@ router.route('/:id')
       if (req.body.age) {
         update.age = req.body.age;
       }
-      let user = await User.updateUserById(req.params.id,update);
+      let user = await User.updateUserById(req.params.id, update);
 
       return {
         code: 0,

@@ -64,7 +64,6 @@ typings/
 .eslintignore
 .eslintrc
 auth_stuff.js
-cipher.js
 mongoose_demo.js
 .gitignore
 
