@@ -1,5 +1,5 @@
 let USER_ID_INIT = 10000;
-const users = []
+const users = [];
 
 class User {
   constructor(params) {

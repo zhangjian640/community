@@ -1,16 +1,21 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/in_memo/user');
-const Topic = require('../models/in_memo/topic');
+const User = require('../models/mongo/user');
+const Topic = require('../models/mongo/topic');
 
 /* GET topic listing. */
 router.route('/')
+
   .get((req, res, next) => {
+    let option = {
+      page: 0,
+      pageSize: 5
+    };
     (async () => {
-      let topic = await Topic.getTopics();
+      let topics = await Topic.getTopics(option);
       return {
         code: 0,
-        topic: topic
+        topics: topics
       };
     })()
       .then(r => {
@@ -44,7 +49,7 @@ router.route('/')
 router.route('/:id')
   .get((req, res, next) => {
     (async () => {
-      let topic = await Topic.getTopicById(Number(req.params.id));
+      let topic = await Topic.getTopicById(req.params.id);
       return {
         code: 0,
         topic: topic
@@ -60,10 +65,9 @@ router.route('/:id')
   .patch((req, res, next) => {
     (async () => {
       let topic = await Topic.updateTopicById(
-        Number(req.params.id),
+        req.params.id,
         {
-          name: req.body.name,
-          age: req.body.age
+          content: req.body.content
         }
       );
 
@@ -83,9 +87,11 @@ router.route('/:id')
 router.route('/:id/reply').post((req, res, next) => {
   (async () => {
     const user = await User.getUserById(req.body.userId);
+    console.log(user._id);
+    console.log(req.params.id);
     let topic = await Topic.replyATopic({
       topicId: req.params.id,
-      creator: user,
+      creator: user._id,
       content: req.body.content
     });
     return {

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/in_memo/user');
+const User = require('../models/mongo/user');
 
 /* GET user listing. */
 router.route('/')
@@ -23,7 +23,9 @@ router.route('/')
     (async () => {
       let user = await User.createANewUser({
         name: req.body.name,
-        age: req.body.age
+        age: req.body.age,
+        password: req.body.password,
+        phoneNumber: req.body.phoneNumber
       });
       return {
         code: 0,
@@ -41,7 +43,7 @@ router.route('/')
 router.route('/:id')
   .get((req, res, next) => {
     (async () => {
-      let user = await User.getUserById(Number(req.params.id));
+      let user = await User.getUserById(req.params.id);
       return {
         code: 0,
         user: user
@@ -56,13 +58,14 @@ router.route('/:id')
   })
   .patch((req, res, next) => {
     (async () => {
-      let user = await User.updateUserById(
-        Number(req.params.id),
-        {
-          name: req.body.name,
-          age: req.body.age
-        }
-      );
+      let update = {};
+      if (req.body.name) {
+        update.name = req.body.name;
+      }
+      if (req.body.age) {
+        update.age = req.body.age;
+      }
+      let user = await User.updateUserById(req.params.id,update);
 
       return {
         code: 0,

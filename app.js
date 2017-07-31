@@ -11,6 +11,8 @@ var topicRouter = require('./routes/topic');
 
 var app = express();
 
+require('./services/mongoose_service');
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
