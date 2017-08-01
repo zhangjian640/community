@@ -10,23 +10,24 @@ router.get('/', function (req, res, next) {
 });
 
 router.post('/sinUp', (req, res, next) => {
-  const user = {
-    name: req.body.name,
-    phoneNumber : req. body.phoneNumber,
-    password: req.body.pssword
-  };
-  User.createANewUser()
   (async () => {
+    let user = await User.createANewUser({
+      name: req.body.name,
+      age: req.body.age,
+      password: req.body.password,
+      phoneNumber: req.body.phoneNumber
+    });
+    return {
+      code: 0,
+      user: user
+    }
   })()
     .then(r => {
-      res.data = r;
-      response(req, res);
+      res.json(r);
     })
     .catch(e => {
-      res.err = e;
-      response(req, res);
+      next(e);
     });
-
 });
 
 router.post('/login', (req, res, next) => {
