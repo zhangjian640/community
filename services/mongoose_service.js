@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const uri = 'mongodb://localhost:27017/community';
+const uri = 'mongodb://localhost:29999/community';
 mongoose.Promise = global.Promise;
 
 mongoose.connect(uri, {useMongoClient: true});

@@ -4,12 +4,14 @@ const crypto = require('crypto');
 const bluebird = require('bluebird');
 const pbkdf2Async = bluebird.promisify(crypto.pbkdf2);
 const SALT = require('../../cipher').PASSWORD_SALT;
+const Errors = require('../../errors');
 
 const UserSchema = new Schema({
   name: {type: String, require: true, unique: true},
   age: {type: Number, max:[90, 'NoBody over 90 could use this']},
   password: String,
-  phoneNumber: String
+  phoneNumber: String,
+  avatar: String
 });
 
 const DEFAULT_PROJECTION = {password: 0, phoneNumber: 0, __v: 0};
@@ -27,13 +29,12 @@ async function createANewUser(params) {
 
   let created = await user.save()
     .catch(e => {
-      console.log(e);
       switch (e.code){
         case 11000:
-          throw new Error('someone has picked that name, choose an other!');
+          throw new Errors.DuplicatedUserNameError(params.name);
           break;
         default:
-          throw new Error(`error creating user ${JSON.stringify(params)}`);
+          throw new Errors.ValidationError('user',`error creating user ${JSON.stringify(params)}`);
           break;
       }
     });
@@ -78,18 +79,18 @@ async function login(phoneNumber, password) {
     .then(r => r.toString())
     .catch(e=>{
       console.log(e);
-      throw new Error('error');
+      throw new Errors.InternalError('some thing wrong with the server')
     });
 
   const user = await UserModel.findOne({phoneNumber: phoneNumber, password: password})
     .select(DEFAULT_PROJECTION)
     .catch(e =>{
-      console.log(`error logging in, phoneNumber ${phoneNumber}`);
-      throw new Error('error');
+      throw new Errors.ValidationError('phoneNumber',`error logging in, phoneNumber ${phoneNumber}`);
     });
 
   if (!user) {
-    throw new Error('No such user!');
+    throw new Errors.DuplicatedUserError('No such user!')
+
   }
   return user;
 }
